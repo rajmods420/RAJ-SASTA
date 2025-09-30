@@ -1,0 +1,393 @@
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   RAJ & SASTA &acirc; Live Predictor
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/lucide@latest">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+   :root{
+      --bg-1:#0b1020; --border:rgba(255,255,255,.14); --text:#e5e7eb; --muted:#94a3b8;
+      --primary:#8b5cf6; --cyan:#22d3ee; --success:#22c55e; --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:var(--text);
+      background: radial-gradient(1000px 600px at 20% -10%, rgba(34,211,238,.15), transparent),
+                  radial-gradient(800px 600px at 90% 110%, rgba(139,92,246,.15), transparent),
+                  var(--bg-1);
+      padding:20px;
+    }
+    .shell{max-width:1100px;margin:auto}
+    .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+    .brand svg text{font-weight:800;letter-spacing:4px;text-transform:uppercase;fill:url(#g)}
+    .badge{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--border);border-radius:999px;padding:6px 12px;background:rgba(255,255,255,.04);font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .card{grid-column:span 12;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.05);backdrop-filter:blur(8px);padding:16px}
+    @media (min-width:768px){.span-6{grid-column:span 6}}
+    h2{margin:0 0 10px;font-size:16px;font-weight:600;color:var(--muted)}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+    .kpi{border:1px dashed var(--border);border-radius:12px;padding:12px;text-align:center}
+    .kpi .label{font-size:12px;color:var(--muted)}
+    .kpi .value{font-size:22px;margin-top:6px}
+    .prediction-box{display:flex;flex-direction:column;gap:10px}
+    .pred{border:1px solid var(--border);border-radius:14px;background:rgba(139,92,246,.06);padding:14px}
+    .pred-value{font-size:28px;font-weight:800;letter-spacing:1px}
+    .big{color:var(--cyan)} .small{color:var(--primary)}
+    .bar{width:100%;height:10px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid var(--border)}
+    .fill{height:100%;width:0%;background:linear-gradient(90deg, var(--cyan), var(--success));transition:width .35s ease}
+    .subtle{font-size:12px;color:var(--muted)}
+    .btn{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);border-radius:10px;padding:8px 10px;font-size:13px;display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+    .history-grid{display:grid;gap:10px}
+    .history-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border:1px solid var(--border);border-radius:12px;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02))}
+    .history-item.win{box-shadow:0 0 0 1px rgba(34,197,94,.25), inset 0 0 24px rgba(34,197,94,.06)}
+    .history-item.loss{box-shadow:0 0 0 1px rgba(239,68,68,.25), inset 0 0 24px rgba(239,68,68,.06)}
+    .empty{color:var(--muted);text-align:center}
+    footer{text-align:center;color:var(--muted);font-size:12px;margin-top:20px}
+
+    /* Period Linear UI */
+    .period-linear{
+      border:1px solid var(--border);
+      background:linear-gradient(90deg,rgba(139,92,246,.12),rgba(34,211,238,.12));
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:20px;
+      display:flex;align-items:center;
+      justify-content:space-between;
+      backdrop-filter:blur(6px);
+    }
+    .period-linear strong{
+      font-size:22px;
+      letter-spacing:2px;
+      background:linear-gradient(90deg,var(--primary),var(--cyan));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .period-linear span{
+      font-size:14px;
+      color:var(--muted);
+    }
+  </style>
+  <div class="shell">
+   <header class="hero">
+    <div class="brand">
+     <svg viewbox="0 0 1200 140">
+      <defs>
+       <lineargradient id="g" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0%" stop-color="var(--primary)">
+        </stop>
+        <stop offset="100%" stop-color="var(--cyan)">
+        </stop>
+       </lineargradient>
+      </defs>
+      <text font-size="80" text-anchor="middle" x="50%" y="58%">
+       AYUSH HACKER
+      </text>
+      <text fill="url(#g)" font-size="18" opacity=".9" text-anchor="middle" x="50%" y="120">
+       Live Predictor
+      </text>
+     </svg>
+    </div>
+    <div>
+     <span class="badge">
+      <svg class="lucide lucide-activity" data-lucide="activity" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+       <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2">
+       </path>
+      </svg>
+      Next Period:
+      <strong id="period">
+       0337
+      </strong>
+     </span>
+     <span class="badge">
+      <svg class="lucide lucide-clock" data-lucide="clock" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+       <path d="M12 6v6l4 2">
+       </path>
+       <circle cx="12" cy="12" r="10">
+       </circle>
+      </svg>
+      <span id="lastSync">
+       5:36:29 AM
+      </span>
+     </span>
+    </div>
+   </header>
+   <!-- NEW PERIOD LINEAR UI -->
+   <div class="period-linear">
+    <span>
+     Upcoming Period
+    </span>
+    <strong id="linearPeriod">
+     0337
+    </strong>
+    <span class="subtle" id="linearStatus">
+     Live Sequence Updating...
+    </span>
+   </div>
+   <section class="grid">
+    <div class="card span-6">
+     <h2>
+      <svg class="lucide lucide-bar-chart-3" data-lucide="bar-chart-3" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+       <path d="M3 3v16a2 2 0 0 0 2 2h16">
+       </path>
+       <path d="M18 17V9">
+       </path>
+       <path d="M13 17V5">
+       </path>
+       <path d="M8 17v-3">
+       </path>
+      </svg>
+      Overview
+     </h2>
+     <div class="stats">
+      <div class="kpi">
+       <div class="label">
+        Total Predictions
+       </div>
+       <div class="value" id="totalBets">
+        0
+       </div>
+      </div>
+      <div class="kpi">
+       <div class="label">
+        Wins
+       </div>
+       <div class="value" id="bs_win">
+        0
+       </div>
+      </div>
+      <div class="kpi">
+       <div class="label">
+        Losses
+       </div>
+       <div class="value" id="bs_loss">
+        0
+       </div>
+      </div>
+      <div class="kpi">
+       <div class="label">
+        Winrate
+       </div>
+       <div class="value" id="bs_rate">
+        0%
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="card span-6">
+     <h2>
+      <svg class="lucide lucide-zap" data-lucide="zap" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+       <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z">
+       </path>
+      </svg>
+      Latest Prediction
+     </h2>
+     <div class="prediction-box">
+      <div class="pred">
+       <div class="pred-value" id="bs_result">
+        FETCHING...
+       </div>
+       <div class="subtle" id="patternInfo">
+        Pattern: &acirc;
+       </div>
+       <div class="subtle" id="fallbackInfo" style="display:none;">
+        Fallback: &acirc;
+       </div>
+       <div class="bar" style="margin-top:8px;">
+        <div class="fill" id="confBar">
+        </div>
+       </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+       <span class="badge" id="seqTail">
+        Seq: BBBBSBBS
+       </span>
+       <button class="btn" id="clearHistory">
+        <svg class="lucide lucide-trash-2" data-lucide="trash-2" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+         <path d="M10 11v6">
+         </path>
+         <path d="M14 11v6">
+         </path>
+         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6">
+         </path>
+         <path d="M3 6h18">
+         </path>
+         <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+         </path>
+        </svg>
+        Clear History
+       </button>
+      </div>
+     </div>
+    </div>
+    <div class="card span-12">
+     <h2>
+      <svg class="lucide lucide-history" data-lucide="history" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8">
+       </path>
+       <path d="M3 3v5h5">
+       </path>
+       <path d="M12 7v5l4 2">
+       </path>
+      </svg>
+      Prediction History
+     </h2>
+     <div class="history-grid" id="history">
+      <div class="empty" id="noHistory">
+       No history yet
+      </div>
+     </div>
+    </div>
+   </section>
+   <footer>
+    &Acirc;&copy; 2025 SATYAM-PANDIT &acirc; Smart Predictor
+   </footer>
+  </div>
+  <script>
+   // =================== CONFIG & STATE ===================
+const API = "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json";
+const REVEAL_DELAY_MS = 10000;
+const HISTORY_MAX = 50;
+let lastIssue = null, totalBets = 0, bsWins = 0, bsLosses = 0, pendingPrediction = null;
+let fallbackMode = 'follow';
+
+// =================== MAPS ===================
+const trendMap5 = {'BBSSB':'S','SSBBS':'B','BBBSS':'S','SSSBB':'B'};
+
+// ============ HELPERS ===========
+const $ = id => document.getElementById(id);
+const getType = n => n >= 5 ? 'B':'S';
+
+// ============ NEW RANDOM LOGIC ===========
+function randomPrediction(){
+  const type = Math.random() > 0.5 ? 'B' : 'S';
+  const conf = 50 + Math.floor(Math.random()*15);
+  return { type, bsConf: conf, usedFallback:true, note: 'Randomized Prediction' };
+}
+
+// ============ FETCH ===========
+async function fetchData(){
+  try {
+    const res = await fetch(API);
+    const json = await res.json();
+    const list = json?.data?.list || [];
+    if(!list.length) return;
+
+    const latest = list[0];
+    const issue = latest.issueNumber;
+    const actual = parseInt(latest.number,10);
+
+    if(issue !== lastIssue){
+      if(pendingPrediction) {
+        updateHistory(issue, pendingPrediction, actual);
+        updateStats(pendingPrediction.type === getType(actual));
+      }
+
+      const bsSeq = list.slice(0,50).map(x=>getType(parseInt(x.number,10))).reverse();
+      const p5 = bsSeq.slice(-5).join('');
+      let prediction = {type:'SKIP'};
+      let usedPattern = 'â', fbNote='';
+
+      if(trendMap5[p5]){
+        prediction = { type: trendMap5[p5], bsConf:75 };
+        usedPattern = '5D: '+p5;
+      } else {
+        prediction = randomPrediction();
+        usedPattern = 'Random';
+        fbNote = prediction.note;
+      }
+
+      pendingPrediction = prediction;
+      showPredictionAfterDelay(prediction, usedPattern, fbNote);
+
+      const next = (parseInt(issue.slice(-4))+1).toString().padStart(4,'0');
+      $('period').textContent = next;
+      $('linearPeriod').textContent = next;
+      $('linearStatus').textContent = 'Live Sequence Updating...';
+      $('seqTail').textContent = 'Seq: ' + bsSeq.slice(-8).join('');
+      lastIssue = issue;
+      
+      // Update last sync time
+      $('lastSync').textContent = new Date().toLocaleTimeString();
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    $('linearStatus').textContent = 'Connection Error';
+  }
+}
+
+function showPredictionAfterDelay(prediction, pattern, note){
+  const el = $('bs_result');
+  el.textContent = 'FETCHING...';
+  setTimeout(()=>{
+    $('confBar').style.width = prediction.bsConf+'%';
+    el.textContent = prediction.type==='B'?'BIG':'SMALL';
+    el.classList.toggle('big', prediction.type==='B');
+    el.classList.toggle('small', prediction.type==='S');
+    $('patternInfo').textContent = 'Pattern: '+pattern;
+    if(note){ 
+      $('fallbackInfo').style.display='block'; 
+      $('fallbackInfo').textContent = note; 
+    } else {
+      $('fallbackInfo').style.display='none';
+    }
+  }, REVEAL_DELAY_MS);
+}
+
+function updateHistory(issue, pred, actual){
+  const actualType = getType(actual);
+  const win = pred.type === actualType;
+  const hist = $('history');
+  $('noHistory')?.remove();
+  const div = document.createElement('div');
+  div.className = 'history-item ' + (win?'win':'loss');
+  div.innerHTML = `
+    <div><i class="fa-solid ${win?'fa-circle-check':'fa-circle-xmark'}"></i></div>
+    <div><strong>Period:</strong> ${issue}<br><span class="subtle">Pred: ${pred.type} | Actual: ${actualType}</span></div>
+  `;
+  hist.prepend(div);
+  
+  // Limit history length
+  if(hist.children.length > HISTORY_MAX) {
+    hist.removeChild(hist.lastChild);
+  }
+}
+
+function updateStats(isWin) {
+  totalBets++;
+  if(isWin) {
+    bsWins++;
+  } else {
+    bsLosses++;
+  }
+  
+  $('totalBets').textContent = totalBets;
+  $('bs_win').textContent = bsWins;
+  $('bs_loss').textContent = bsLosses;
+  
+  const winRate = totalBets > 0 ? Math.round((bsWins / totalBets) * 100) : 0;
+  $('bs_rate').textContent = winRate + '%';
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  lucide.createIcons();
+  
+  // Set up clear history button
+  $('clearHistory').addEventListener('click', function() {
+    $('history').innerHTML = '<div class="empty" id="noHistory">No history yet</div>';
+    totalBets = 0;
+    bsWins = 0;
+    bsLosses = 0;
+    updateStats(false);
+  });
+  
+  // Start polling
+  setInterval(fetchData, 5000);
+  fetchData();
+});
+  </script>
+ </body>
+</html>
